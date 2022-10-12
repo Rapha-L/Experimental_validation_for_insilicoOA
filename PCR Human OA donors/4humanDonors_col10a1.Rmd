@@ -1,0 +1,95 @@
+---
+title: "Effect of Forkoline on Col10a1 in 4 human donors"
+output: html_notebook
+author: Raphaelle Lesage (raphaelle.lesage@kuleuven.be)
+license: Distributed under the GPLv3 License. See accompanying file LICENSE.txt or copy at http://www.gnu.org/licenses/gpl-3.0.html
+website: kjn
+date: 2021
+---
+
+# Load data
+```{r}
+
+library (here)
+
+here::i_am("4humanDonors_col10a1.Rmd")
+#setwd(dir = "I:/PhD_I_drive/My publications/insilico OA/V5/v6/final data figures")
+
+data = read.csv(file = here("Col10a1_humanDonors.csv"))
+annotations = read.csv(file = here("Annotations.csv"))
+
+data_table = c(data$Donor1,data$Donor2,data$Donor3,data$Donor4)
+data_conditions = c(rep(as.vector(data$conditions),4))
+data_batch= c(rep('Donor1',6),rep('Donor2',6),rep('Donor3',6),rep('Donor4',6))
+
+
+df = data.frame(Batch = data_batch, conditions = data_conditions, Col10a1 = data_table)
+df = df[!is.na(df$Col10a1),]
+df_annot  = merge(df,annotations,by.x ="conditions",by.y = "conditions")
+
+
+```
+# Make graph
+```{r}
+library(dplyr)
+library(ggpubr)
+library(viridis)
+library(extrafont)
+#font_import()
+loadfonts(device="win")
+fonts()
+library(scales)
+
+
+#"dotplot" "jitter"
+
+g = ggline( df ,x = "conditions", y = "Col10a1", color = "Batch",
+       add = c("mean_se", "dotplot"),
+       palette = "viridis",
+       ylab = "Gene expression \n relative to GAPDH",
+       xlab ="",
+       size = 1,
+       plot_type = "b",
+       font.label = list(size = 2),
+       error.plot = "errorbar",
+       bindwidth = 40,
+       point.size = 1,
+       order = c("Control","PKA activator"),
+       width = c(0.1,1)) +
+       #theme_classic()+ 
+        scale_y_continuous(labels = scientific)+
+       theme(axis.text.x = element_text(angle = 60, hjust = 1),text = element_text(size=28,family="Calibri"), legend.position = "up")
+
+g
+```
+
+## Save plot
+```{r}
+
+#ggsave(filename = "PKA_FGFR1_HumanDonors.png",plot = last_plot(),dpi=330, units = "cm",width= 15,height = 15)
+ggsave(filename = "PKA_FGFR1_HumanDonors.png",plot = g,dpi=330, units = "cm",width= 15,height = 15)
+
+```
+# Statistical analysis 
+Mixed linear model 
+```{r}
+library(lme4)
+library(multcomp)
+library(lsmeans)
+
+df$Col10_log = log(df$Col10a1)
+
+
+# define dependent and independent variables in linear model
+full.lmer <- lme4::lmer(Col10_log~ conditions + (1|Batch), df, REML = FALSE)
+null.lmer <- lme4::lmer(Col10_log ~ 1 + (1|Batch), df, REML = FALSE)
+
+# test all possible comparisons with Tukey's contrast matrice
+s1 = summary(glht(full.lmer, linfct = mcp(conditions = "Tukey")), test = adjusted("holm"))
+s1
+
+hist(df$Col10a1)
+hist(df$Col10_log)
+
+```
+
