@@ -1,11 +1,16 @@
 ---
-title: "Effect of Forkoline on Col10a1 in 4 human donors"
+title: "Effect of Forkolin on Col10a1 in 4 human donors"
 output: html_notebook
 author: Raphaelle Lesage (raphaelle.lesage@kuleuven.be)
 license: Distributed under the GPLv3 License. See accompanying file LICENSE.txt or copy at http://www.gnu.org/licenses/gpl-3.0.html
-website: kjn
+website: https://github.com/Rapha-L/Experimental_validation_for_insilicoOA 
 date: 2021
 ---
+```{r}
+#Distributed under the GPLv3 License. See accompanying file LICENSE.txt or copy at http://www.gnu.org/licenses/gpl-3.0.html
+#website: https://github.com/Rapha-L/Experimental_validation_for_insilicoOA 
+```
+
 
 # Load data
 ```{r}
